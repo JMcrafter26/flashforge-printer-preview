@@ -2,7 +2,7 @@
 
 This is a simple tool that allows you to see your printer stats in OrcaSlicer as the printer is printing. I made this since OrcaSlicer does not have a built-in feature to show the printer stats for FlashForge printers (Connection refused error in OrcaSlicer 2.1.1)
 
-> ⚠️ This is not nearly as finished so expect bug
+> ⚠️ This is not nearly as finished so expect bugs
 
 ## Installation
 
