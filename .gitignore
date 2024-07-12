@@ -1,2 +1,4 @@
 # ignore python cache files
 api/__pycache__/
+*.spec
+api/build/

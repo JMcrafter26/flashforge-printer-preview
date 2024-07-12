@@ -29,7 +29,7 @@
             <div class="col-md-6 mb-3">
                 <div class="card">
                     <div class="card-header">
-                        <h2>Printer Preview</h2>
+                        <h2>Camera</h2>
                     </div>
                     <div class="card-body">
 
@@ -74,6 +74,7 @@
                             </div>
                             <button class="btn btn-danger" id="cancel-print" disabled>Cancel Print</button>
                         </div>
+                        <p id="printer-status-message" class="text-danger"></p>
                     </div>
                 </div>
             </div>
@@ -113,6 +114,8 @@
                         <input type="text" class="form-control" id="printer-firmware" placeholder="Printer Firmware"
                             readonly>
                     </div>
+
+                    <button type="button" class="btn btn-danger" id="stop-server">Stop Server</button>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -146,6 +149,17 @@
                 saveValue('printerIp', window.printerIp);
                 // close the printer settings modal
                 $('#printer-settings').modal('hide');
+            });
+
+            // add event listener to the stop server button in the printer settings modal
+            $('#stop-server').on('click', function () {
+                // prompt the user to confirm if they want to stop the server
+                if (!confirm('Are you sure you want to stop the server? You will need to restart the server to connect to the printer again.')) {
+                    return;
+                }
+                $.get('http://localhost:8899/stop', function (data) {
+                    console.log(data);
+                });
             });
 
 
@@ -320,14 +334,28 @@
 
         function getPrinterInfo() {
             // get the printer info from the printer ip
-            $.get('http://localhost:8899/info?ip=' + window.printerIp, function (data) {
-                // set the printer name
-                $('#printer-name').val(data.Name);
-                // set the printer model
-                $('#printer-model').val(data.Type);
-                // set the printer firmware
-                $('#printer-firmware').val(data.Firmware);
-            });
+            $.get('http://localhost:8899/info?ip=' + window.printerIp)
+                .done(function (data) {
+                    // set the printer name
+                    $('#printer-name').val(data.Name);
+                    // set the printer model
+                    $('#printer-model').val(data.Type);
+                    // set the printer firmware
+                    $('#printer-firmware').val(data.Firmware);
+                    window.failedConnection = false;
+                    // set the text of the printer status message
+                    $('#printer-status-message').text('');
+                })
+                .fail(function () {
+                    // handle the connection failure here
+                    console.log('Failed to establish connection to printer.');
+                    if (window.failedConnection) {
+                        // set the text of the printer status message
+                        $('#printer-status-message').text('Failed to establish connection to printer. Is your printer on and the backend server running?');
+                    }
+                    window.failedConnection = true;
+                    // display an error message or take appropriate action
+                });
         }
 
         function getPrinterTemperature() {
