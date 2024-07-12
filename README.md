@@ -4,7 +4,7 @@ This is a simple tool that allows you to see your printer stats in OrcaSlicer as
 
 ## Installation
 
-1. Download the latest release from the release folder
+1. Download the latest release from the [release folder](https://github.com/JMcrafter26/flashforge-printer-preview/tree/main/api/release/program)
 1. Windows: Run backend.exe | Other OS: Run backend.py
 1. Open localhost:8899 in your browser
 
