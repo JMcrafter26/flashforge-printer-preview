@@ -4,10 +4,9 @@ This is a simple tool that allows you to see your printer stats in OrcaSlicer as
 
 ## Installation
 
-1. Download the latest release from the [releases page](releases)
-2. Extract the zip file
-3. Windows: Run backend.exe | Other OS: Run backend.py
-4. Open localhost:8899 in your browser
+1. Download the latest release from the release folder
+1. Windows: Run backend.exe | Other OS: Run backend.py
+1. Open localhost:8899 in your browser
 
 ## License and Credits
 
