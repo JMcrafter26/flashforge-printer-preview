@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+        content="A printer preview with the progress bar and camera preview for FlashForge printers">
+    <!--Style-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+        integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script>
+        // check if the browser supports localstorage
+        if (typeof (Storage) === 'undefined') {
+            alert('Your browser does not support local storage');
+        }
+        document.documentElement.setAttribute('data-bs-theme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Printer Preview</h1>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Printer Preview</h2>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="camera-preview">
+                            <img src="https://via.placeholder.com/300" alt="Camera Preview" class="img-fluid rounded"
+                                width="100%" id="camera-preview"
+                                onerror="this.src='https://via.placeholder.com/300';
+                                setTimeout(function() {
+                                    $('#camera-preview').attr('src', 'http://' + window.printerIp + ':8080/?action=stream');
+                                }, 10000);">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <h2>Printer Controls</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#printer-settings">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-0">
+                        <p>Printer Status: <span id="printer-status">Offline</span></p>
+                        <p>Temperature: <span id="printer-temperature">-</span>° / <span id="printer-target-temperature">-</span>°</p>
+                        </div>
+                        <!-- print progress and print time -->
+                        <div class="d-flex justify-content-between mb-0">
+                            <p>Print Progress: <span id="print-progress">-</span></p>
+                            <p>Print Time: ~<span id="print-time"></span></p>
+                        </div>
+                        <div class="progress mb-3">
+                            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0"
+                                aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <div>
+                                <button class="btn btn-primary" id="start-print" disabled>Start Print</button>
+                                <button class="btn btn-warning" id="pause-print" disabled>Pause Print</button>
+                            </div>
+                            <button class="btn btn-danger" id="cancel-print" disabled>Cancel Print</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Printer Settings Modal -->
+    <div class="modal fade" id="printer-settings" tabindex="-1" aria-labelledby="printer-settings-label"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="printer-settings-label">Printer Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+
+                        <div class="mb-3">
+                            <label for="printer-ip" class="form-label">Printer IP</label>
+                            <input type="text" class="form-control" id="printer-ip" placeholder="Printer IP">
+                            <p class="text-danger">Please enter the printer IP address to connect to the printer</p>
+                        </div>
+                    </form>
+
+                    <div class="mb-3">
+                        <label for="printer-name" class="form-label">Printer Name</label>
+                        <input type="text" class="form-control" id="printer-name" placeholder="Printer Name" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="printer-model" class="form-label">Printer Model</label>
+                        <input type="text" class="form-control" id="printer-model" placeholder="Printer Model" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="printer-firmware" class="form-label">Printer Firmware</label>
+                        <input type="text" class="form-control" id="printer-firmware" placeholder="Printer Firmware"
+                            readonly>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="save-changes">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center mt-5">
+        <p>&copy; 2024 JM26.NET</p>
+    </footer>
+
+
+    <!--Scripts-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"
+        integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ"
+        crossorigin="anonymous"></script>
+
+    <script>
+        function init() {
+            // add event listener to the save changes button in the printer settings modal
+            $('#save-changes').on('click', function () {
+                // get the printer name and ip from the input fields
+                window.printerIp = $('#printer-ip').val();
+               
+                // save the printer name and ip to the localstorage
+                saveValue('printerIp', window.printerIp);
+                // close the printer settings modal
+                $('#printer-settings').modal('hide');
+            });
+
+
+            // check if printer ip is saved in the localstorage, if not, show the printer settings modal
+            if (!getValue('printerIp') || getValue('printerIp') === '') {
+                $('#printer-settings').modal('show');
+                return;
+            }
+
+            // get the printer ip from the localstorage
+            window.printerIp = getValue('printerIp');
+            // get the printer name from the localstorage
+            // set the printer name and ip in the input fields
+            $('#printer-ip').val(window.printerIp);
+
+            if (window.printerIp !== '') {
+                // get the camera preview image from the printer ip
+                $('#camera-preview').attr('src', 'http://' + window.printerIp + ':8080/?action=stream');
+            }
+
+
+            getPrinterInfo();
+            getPrinterStatus();
+            getPrintProgress();
+            getPrinterTemperature();
+
+            updatePrinterStatus();
+
+            // set interval to count down the print time
+            setInterval(function () {
+                countDownPrintTime();
+            }, 1000);
+        }
+
+        function countDownPrintTime() {
+            // get the print time remaining
+            let printTime = $('#print-time').text();
+            // if the print time is calculating, do not count down
+            if (printTime === 'Calculating...' || printTime === '0h 0m 0s' || printTime === '') {
+                return;
+            }
+            // split the print time into hours, minutes, and seconds
+            let printTimeArray = printTime.split(' ');
+            let hours = parseInt(printTimeArray[0].replace('h', ''));
+            let minutes = parseInt(printTimeArray[1].replace('m', ''));
+            let seconds = parseInt(printTimeArray[2].replace('s', ''));
+
+            // if the seconds are greater than 0, decrement the seconds
+            if (seconds > 0) {
+                seconds--;
+            } else {
+                // if the seconds are 0, check if the minutes are greater than 0
+                if (minutes > 0) {
+                    // if the minutes are greater than 0, decrement the minutes and set the seconds to 59
+                    minutes--;
+                    seconds = 59;
+                } else {
+                    // if the minutes are 0, check if the hours are greater than 0
+                    if (hours > 0) {
+                        // if the hours are greater than 0, decrement the hours and set the minutes to 59 and seconds to 59
+                        hours--;
+                        minutes = 59;
+                        seconds = 59;
+                    } else {
+                        // if the hours are 0, set the print time to 0
+                        hours = 0;
+                        minutes = 0;
+                        seconds = 0;
+                    }
+                }
+            }
+
+            // set the print time
+            $('#print-time').text(hours + 'h ' + minutes + 'm ' + seconds + 's');
+        }
+
+        function saveValue(key, value) {
+            // get localstorage array named printerPreview
+            let printerPreview = JSON.parse(localStorage.getItem('printerPreview')) || {};
+            // set the value of the key
+            printerPreview[key] = value;
+            // save the value to the localstorage
+            localStorage.setItem('printerPreview', JSON.stringify(printerPreview));
+        }
+
+        function getValue(key) {
+            // get localstorage array named printerPreview
+            let printerPreview = JSON.parse(localStorage.getItem('printerPreview')) || {};
+            // return the value of the key
+            return printerPreview[key];
+        }
+
+        /*
+        /info: General printer info:
+
+        {
+        "Firmware": "V1.5 20170419",
+        "Name": "My Finder",
+        "SN": "6A8D887A",
+        "Tool Count": "1",
+        "Type": "Flashforge Finder",
+        "X": "140  Y: 140  Z: 140"
+        }
+        /head-location: Printer head location (as X, Y Z):
+
+        {
+        "X": "86.9984",
+        "Y": "70.5016",
+        "Z": "140"
+        }
+        /temp: Current/target temperature
+
+        {
+        "TargetTemperature": "35",
+        "Temperature": "31"
+        }
+        /progress: Print progress
+
+        {
+        "BytesPrinted": 4276,
+        "BytesTotal": 4275,
+        "PercentageCompleted": 100
+        }
+        /status: Status (i.e. if it's printing or not)
+
+        {
+        "Endstop": "X-max: 1 Y-max: 0 Z-max: 1",
+        "MachineStatus": "READY",
+        "MoveMode": "READY",
+        "Status": "S:0 L:0 J:0 F:1"
+        }
+        */
+
+        function getPrinterStatus() {
+            // get the printer status from the printer ip
+            $.get('http://localhost:8899/status?ip=' + window.printerIp, function (data) {
+                // set the printer status
+                let status = data.MoveMode;
+                // if status is MOVING, use the machine status
+                if (status === 'MOVING') {
+                    status = data.MachineStatus;
+                }
+                // if machine status is BUILDING_COMPLETED
+                if (status === 'BUILDING_COMPLETED') {
+                    status = 'Done';
+                }
+                // only capitalize the first letter
+                status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+                // replace the _ with a space
+                status = status.replace('_', ' ');
+                
+                if (status.startsWith('Building')) {
+                    status = 'Printing';
+                }
+                $('#printer-status').text(status);
+            });
+        }
+
+        function getPrintProgress() {
+            // get the print progress from the printer ip
+            $.get('http://localhost:8899/progress?ip=' + window.printerIp, function (data) {
+                // set the print progress
+                $('#print-progress').text(data.PercentageCompleted + '%');
+                // set the print time
+                // $('#print-time').text(data.PercentageCompleted + 's');
+                // set the progress bar width
+                $('.progress-bar').css('width', data.PercentageCompleted + '%');
+                // calculate the print time remaining
+                calculatePrintTime(data.PercentageCompleted);
+            });
+        }
+
+        function getPrinterInfo() {
+            // get the printer info from the printer ip
+            $.get('http://localhost:8899/info?ip=' + window.printerIp, function (data) {
+                // set the printer name
+                $('#printer-name').val(data.Name);
+                // set the printer model
+                $('#printer-model').val(data.Type);
+                // set the printer firmware
+                $('#printer-firmware').val(data.Firmware);
+            });
+        }
+
+        function getPrinterTemperature() {
+            // get the printer temperature from the printer ip
+            $.get('http://localhost:8899/temp?ip=' + window.printerIp, function (data) {
+                // set the printer temperature
+                let temperature = data.Temperature;
+                // if it includes a slash, only get the first part
+                if (temperature.includes('/')) {
+                    temperature = temperature.split('/')[0];
+                } else {
+                    temperature = temperature;
+                }
+                $('#printer-temperature').text(temperature);
+                // set the printer target temperature
+                $('#printer-target-temperature').text(data.TargetTemperature);
+            });
+        }
+
+        function calculatePrintTime(percent) {
+            // save the percentage and the timestamp to the localstorage
+            let printTime = getValue('printTime') || {};
+
+            // if there are values in the print time that are higher than the current percentage, remove them
+            for (let key in printTime) {
+                if (parseInt(key) > percent) {
+                    delete printTime[key];
+                }
+            }
+
+            // check if the percentage has changed, if not, do not save it again
+            let newPrintTime;
+            if (!printTime[percent]) {
+                printTime[percent] = Date.now();
+                saveValue('printTime', printTime);
+                newPrintTime = true;
+            } else {
+                newPrintTime = false;
+            }
+
+            // based on the percentage, calculate the print time
+            let printTimeArray = Object.values(printTime);
+            let printTimeKeys = Object.keys(printTime);
+            let printTimeLength = printTimeArray.length;
+            let printTimeDifference = 0;
+            let printTimeTotal = 0;
+
+            // if the print time length is less than 2, show a message
+            if (printTimeLength < 4) {
+                return 'Calculating...';
+            }
+
+            // calculate the print time difference
+            for (let i = 0; i < printTimeLength - 1; i++) {
+                printTimeDifference = printTimeArray[i + 1] - printTimeArray[i];
+                printTimeTotal += printTimeDifference;
+            }
+
+            // calculate the average print time
+            let printTimeAverage = printTimeTotal / (printTimeLength - 1);
+            // calculate the print time remaining
+            let printTimeRemaining = (100 - percent) * printTimeAverage;
+
+
+            // convert the print time remaining to hours, minutes, and seconds
+            let hours = Math.floor(printTimeRemaining / 3600000);
+            let minutes = Math.floor((printTimeRemaining % 3600000) / 60000);
+            let seconds = Math.floor((printTimeRemaining % 60000) / 1000);
+
+            printTimeRemaining = hours + 'h ' + minutes + 'm ' + seconds + 's';
+
+
+            console.log("Print Time Remaining: " + printTimeRemaining);
+            if (newPrintTime) {
+                $('#print-time').text(printTimeRemaining);
+            } else {
+                return;
+            }
+        }
+
+        function updatePrinterStatus() {
+            // update the printer status every 5 seconds
+            setInterval(function () {
+                getPrinterStatus();
+                getPrintProgress();
+                getPrinterInfo();
+                getPrinterTemperature();
+            }, 5000);
+        }
+
+
+        $(document).ready(function () {
+            init();
+        });
+    </script>
+</body>
+
+</html>
