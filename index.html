@@ -306,15 +306,17 @@
                 if (status === 'MOVING') {
                     status = data.MachineStatus;
                 }
+                                
+                if (data.MachineStatus.startsWith('BUILDING')) {
+                    status = 'Printing';
+                }
+                
                 // if machine status is BUILDING_COMPLETED
                 if (data.MachineStatus === 'BUILDING_COMPLETED') {
                     status = 'Done';
                 }
 
-                
-                if (data.MachineStatus.startsWith('BUILDING')) {
-                    status = 'Printing';
-                }
+
 
                                 // only capitalize the first letter
                                 status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
