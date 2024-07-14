@@ -81,8 +81,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 			with open('index.html','r')as L:A.wfile.write(L.read().encode())
 		else:A.send_response(404);A.send_header(F,H);A.send_header(E,D);A.end_headers();A.wfile.write(json.dumps({C:'Command not found'}).encode())
 def run():
-	B='localhost',8899
-	try:A=HTTPServer(B,RequestHandler)
+	C=socket.getfqdn();A=socket.gethostbyname_ex(C)[2][1]+':8899'
+	try:B=HTTPServer(A,RequestHandler)
 	except OSError:print('Server already running, stopping it ...')
-	A.allow_reuse_address=True;print('Starting http server on http://localhost:8899');A.serve_forever()
+	B.allow_reuse_address=True;print('Starting http server on http://'+A);B.serve_forever()
 run()

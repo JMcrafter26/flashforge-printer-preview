@@ -3,6 +3,8 @@ from protocol import get_head_position
 from protocol import get_temp
 from protocol import get_progress
 from protocol import get_status
+import socket
+
 
 def jsonify(printer_info):
     return printer_info
@@ -124,7 +126,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'error': 'Command not found'}).encode())
 
 def run():
-    server_address = ('localhost', 8899)
+    hostname = socket.getfqdn()
+    server_address = socket.gethostbyname_ex(hostname)[2][1] + ':8899'
     # check if the server is already running
     try:
         httpd = HTTPServer(server_address, RequestHandler)
@@ -133,7 +136,7 @@ def run():
     # no cors
     httpd.allow_reuse_address = True
 
-    print('Starting http server on http://localhost:8899')
+    print('Starting http server on http://' + server_address)
 
     httpd.serve_forever()
 

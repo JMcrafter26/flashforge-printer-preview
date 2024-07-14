@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>Printer Preview</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description"
         content="A printer preview with the progress bar and camera preview for FlashForge printers">
@@ -140,6 +140,9 @@
 
     <script>
         function init() {
+            window.host = window.location.hostname + ':8899';
+            // alert(window.host);
+
             // add event listener to the save changes button in the printer settings modal
             $('#save-changes').on('click', function () {
                 // get the printer name and ip from the input fields
@@ -157,7 +160,7 @@
                 if (!confirm('Are you sure you want to stop the server? You will need to restart the server to connect to the printer again.')) {
                     return;
                 }
-                $.get('http://localhost:8899/stop', function (data) {
+                $.get('http://' + window.host + '/stop', function (data) {
                     console.log(data);
                 });
             });
@@ -171,6 +174,7 @@
 
             // get the printer ip from the localstorage
             window.printerIp = getValue('printerIp');
+
             // get the printer name from the localstorage
             // set the printer name and ip in the input fields
             $('#printer-ip').val(window.printerIp);
@@ -295,7 +299,7 @@
 
         function getPrinterStatus() {
             // get the printer status from the printer ip
-            $.get('http://localhost:8899/status?ip=' + window.printerIp, function (data) {
+            $.get('http://' + window.host + '/status?ip=' + window.printerIp, function (data) {
                 // set the printer status
                 let status = data.MoveMode;
                 // if status is MOVING, use the machine status
@@ -303,24 +307,26 @@
                     status = data.MachineStatus;
                 }
                 // if machine status is BUILDING_COMPLETED
-                if (status === 'BUILDING_COMPLETED') {
+                if (data.MachineStatus === 'BUILDING_COMPLETED') {
                     status = 'Done';
                 }
-                // only capitalize the first letter
-                status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-                // replace the _ with a space
-                status = status.replace('_', ' ');
+
                 
-                if (status.startsWith('Building')) {
+                if (data.MachineStatus.startsWith('BUILDING')) {
                     status = 'Printing';
                 }
+
+                                // only capitalize the first letter
+                                status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+                // replace the _ with a space
+                status = status.replace('_', ' ');
                 $('#printer-status').text(status);
             });
         }
 
         function getPrintProgress() {
             // get the print progress from the printer ip
-            $.get('http://localhost:8899/progress?ip=' + window.printerIp, function (data) {
+            $.get('http://' + window.host + '/progress?ip=' + window.printerIp, function (data) {
                 // set the print progress
                 $('#print-progress').text(data.PercentageCompleted + '%');
                 // set the print time
@@ -334,7 +340,7 @@
 
         function getPrinterInfo() {
             // get the printer info from the printer ip
-            $.get('http://localhost:8899/info?ip=' + window.printerIp)
+            $.get('http://' + window.host + '/info?ip=' + window.printerIp)
                 .done(function (data) {
                     // set the printer name
                     $('#printer-name').val(data.Name);
@@ -360,7 +366,7 @@
 
         function getPrinterTemperature() {
             // get the printer temperature from the printer ip
-            $.get('http://localhost:8899/temp?ip=' + window.printerIp, function (data) {
+            $.get('http://' + window.host + '/temp?ip=' + window.printerIp, function (data) {
                 // set the printer temperature
                 let temperature = data.Temperature;
                 // if it includes a slash, only get the first part
@@ -390,7 +396,10 @@
             let newPrintTime;
             if (!printTime[percent]) {
                 printTime[percent] = Date.now();
+                // if value is not 0, save the value
+                if (percent !== 0) {
                 saveValue('printTime', printTime);
+                }
                 newPrintTime = true;
             } else {
                 newPrintTime = false;
@@ -404,8 +413,19 @@
             let printTimeTotal = 0;
 
             // if the print time length is less than 2, show a message
-            if (printTimeLength < 4) {
+            if (printTimeLength < 3) {
                 return 'Calculating...';
+            }
+
+            // if percent is higher than 6, remove the values 0-4
+            if (percent > 6) {
+                for (let i = 0; i < 5; i++) {
+                    // if value i exists, remove it
+                    if (printTime[printTimeKeys[i]]) {
+                        delete printTime[i];
+                    }
+                }
+                saveValue('printTime', printTime);
             }
 
             // calculate the print time difference
@@ -447,7 +467,8 @@
         }
 
 
-        $(document).ready(function () {
+
+        document.addEventListener('DOMContentLoaded', function () {
             init();
         });
     </script>

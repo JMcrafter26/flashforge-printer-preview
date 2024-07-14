@@ -234,14 +234,15 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'error': 'Command not found'}).encode())
 
 def run():
-    server_address = ('localhost', 8899)
+    hostname = socket.getfqdn()
+    server_address = socket.gethostbyname_ex(hostname)[2][1] + ':8899'
     try:
         httpd = HTTPServer(server_address, RequestHandler)
     except OSError:
         print('Server already running, stopping it ...')
     httpd.allow_reuse_address = True
 
-    print('Starting http server on http://localhost:8899')
+    print('Starting http server on http://' + server_address)
 
     httpd.serve_forever()
 
