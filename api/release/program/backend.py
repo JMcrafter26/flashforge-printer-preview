@@ -6,6 +6,8 @@
 
 import re
 import socket
+from socket import getaddrinfo, gethostname
+import ipaddress
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
@@ -136,6 +138,7 @@ def send_and_receive(printer_adress, message_data):
     return data.decode()
 
 
+
 def jsonify(printer_info):
     return printer_info
 
@@ -233,16 +236,53 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({'error': 'Command not found'}).encode())
 
+def get_ip(ip_addr_proto="ipv4", ignore_local_ips=True):
+
+    af_inet = 2
+    if ip_addr_proto == "ipv6":
+        af_inet = 30
+    elif ip_addr_proto == "both":
+        af_inet = 0
+
+    system_ip_list = getaddrinfo(gethostname(), None, af_inet, 1, 0)
+    ip_list = []
+
+    for ip in system_ip_list:
+        ip = ip[4][0]
+
+        try:
+            ipaddress.ip_address(str(ip))
+            ip_address_valid = True
+        except ValueError:
+            ip_address_valid = False
+        else:
+            if ipaddress.ip_address(ip).is_loopback and ignore_local_ips or ipaddress.ip_address(ip).is_link_local and ignore_local_ips:
+                pass
+            elif ip_address_valid:
+                ip_list.append(ip)
+
+    return ip_list
+
 def run():
-    hostname = socket.getfqdn()
-    server_address = socket.gethostbyname_ex(hostname)[2][1] + ':8899'
+    
+    ip = get_ip()
+    if len(ip) == 0:
+        print('No valid ip address found, exiting ...')
+        exit()
+    if ip[0].endswith('.1'):
+        ip = ip[1]
+    else:
+        ip = ip[0]
+    server_address = (ip, port)
+    print('Server address: ' + str(server_address))
+
     try:
         httpd = HTTPServer(server_address, RequestHandler)
     except OSError:
         print('Server already running, stopping it ...')
     httpd.allow_reuse_address = True
 
-    print('Starting http server on http://' + server_address)
+    print('Starting http server on http://' + str(ip) + ':' + str(port))
 
     httpd.serve_forever()
 

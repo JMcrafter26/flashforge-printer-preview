@@ -9,6 +9,8 @@ _C='port'
 _B='ip'
 _A=None
 import re,socket
+from socket import getaddrinfo,gethostname
+import ipaddress
 from http.server import BaseHTTPRequestHandler,HTTPServer
 import json
 request_control_message='~M601 S1\r\n'
@@ -80,9 +82,26 @@ class RequestHandler(BaseHTTPRequestHandler):
 			A.send_response(200);A.send_header(F,'text/html');A.send_header(E,D);A.end_headers()
 			with open('index.html','r')as L:A.wfile.write(L.read().encode())
 		else:A.send_response(404);A.send_header(F,H);A.send_header(E,D);A.end_headers();A.wfile.write(json.dumps({C:'Command not found'}).encode())
+def get_ip(ip_addr_proto='ipv4',ignore_local_ips=True):
+	C=ignore_local_ips;D=ip_addr_proto;B=2
+	if D=='ipv6':B=30
+	elif D=='both':B=0
+	G=getaddrinfo(gethostname(),_A,B,1,0);E=[]
+	for A in G:
+		A=A[4][0]
+		try:ipaddress.ip_address(str(A));F=True
+		except ValueError:F=False
+		else:
+			if ipaddress.ip_address(A).is_loopback and C or ipaddress.ip_address(A).is_link_local and C:0
+			elif F:E.append(A)
+	return E
 def run():
-	C=socket.getfqdn();A=socket.gethostbyname_ex(C)[2][1]+':8899'
-	try:B=HTTPServer(A,RequestHandler)
+	A=get_ip()
+	if len(A)==0:print('No valid ip address found, exiting ...');exit()
+	if A[0].endswith('.1'):A=A[1]
+	else:A=A[0]
+	B=A,port;print('Server address: '+str(B))
+	try:C=HTTPServer(B,RequestHandler)
 	except OSError:print('Server already running, stopping it ...')
-	B.allow_reuse_address=True;print('Starting http server on http://'+A);B.serve_forever()
+	C.allow_reuse_address=True;print('Starting http server on http://'+str(A)+':'+str(port));C.serve_forever()
 run()
