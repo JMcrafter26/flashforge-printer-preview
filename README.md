@@ -19,7 +19,7 @@ Then run `backend.exe`. (*Note:* Your antivirus may detect the file as a virus, 
 
 **B. For all OS:** Download `backend.py` and `index.html` from [here](https://github.com/JMcrafter26/flashforge-printer-preview/tree/main/api/release/program) and put them in the same folder. Second, you need to install Python (if you haven't already). I would recommend Python 3.11 because I used and tested it with this version. You can find tutorials on how to install Python online. Then open the file in a terminal and run `python3 backend.py` in the folder where the file is located.
 
-**NEXT:** This should give you a URL, which you will need to open in your browser. The URL should look something like this: [http://192.168.2.216:8899](http://192.168.2.216:8899)
+**NEXT:** This should give you a URL, which you will need to open in your browser. The URL should look something like this: [http://192.168.2.216:8899](http://192.168.2.216:8899) (This is a local IP, it can only be accessed from your network)
 
 You are greeted with a page that prompts you to enter your printer IP. You can get the IP from the info page on your printer or via your routers settings. After entering, click on save and reload the page. (Make sure your printer is on.) Then you should see a dashboard with information. (Do not expect everything to work, this is just a proof of concept).
 
