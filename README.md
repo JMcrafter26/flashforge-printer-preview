@@ -4,6 +4,11 @@ This is a simple tool that allows you to see your printer stats in OrcaSlicer as
 
 > ⚠️ This is not nearly as finished so expect bugs
 
+## Screenshots
+
+![Dashboard](.github/dash.png)
+![Settings](.github/setting.png)
+
 ## Installation
 
 1. Download the latest release from the [release folder](https://github.com/JMcrafter26/flashforge-printer-preview/tree/main/api/release/program)
