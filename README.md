@@ -17,7 +17,7 @@ From [reddit](https://www.reddit.com/r/FlashForge/comments/1el5xeq/comment/lk64g
 **A. For windows:** Download `backend.exe` and `index.html` from [here](https://github.com/JMcrafter26/flashforge-printer-preview/tree/main/api/release/program) and put them in the same folder.  
 Then run `backend.exe`. (*Note:* Your antivirus may detect the file as a virus, which is not true. I used pyinstaller which converts the .py file into an EXE which does not require having Python installed. If you don't trust it, you can follow Step B)
 
-**B. For all OS:** Download [`backend.py`](http://backend.py)  and `index.html` from [here](https://github.com/JMcrafter26/flashforge-printer-preview/tree/main/api/release/program) and put them in the same folder. Second, you need to install Python (if you haven't already). I would recommend Python 3.11 because I used and tested it with this version. You can find tutorials on how to install Python online. Then open the file in a terminal and run `python3` [`backend.py`](http://backend.py) in the folder where the file is located.
+**B. For all OS:** Download `backend.py` and `index.html` from [here](https://github.com/JMcrafter26/flashforge-printer-preview/tree/main/api/release/program) and put them in the same folder. Second, you need to install Python (if you haven't already). I would recommend Python 3.11 because I used and tested it with this version. You can find tutorials on how to install Python online. Then open the file in a terminal and run `python3 backend.py` in the folder where the file is located.
 
 **NEXT:** This should give you a URL, which you will need to open in your browser. The URL should look something like this: [http://192.168.2.216:8899](http://192.168.2.216:8899)
 
