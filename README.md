@@ -1,8 +1,11 @@
 # FlashForge Printer Preview
 
-This is a simple tool that allows you to see your printer stats in OrcaSlicer as the printer is printing. I made this since OrcaSlicer does not have a built-in feature to show the printer stats for FlashForge printers (Connection refused error in OrcaSlicer 2.1.1)
+> [!IMPORTANT]  
+> I do not own a FlashForge printer anymore (got a Bambu Lab P1S). Because of this I am not able to further develop this program.
+> 
+> Feel free to fork this repo and improve it!
 
-> ⚠️ This is not nearly as finished so expect bugs
+This is a simple tool that allows you to see your printer stats in OrcaSlicer as the printer is printing. I made this since OrcaSlicer does not have a built-in feature to show the printer stats for FlashForge printers (Connection refused error in OrcaSlicer 2.1.1)
 
 ## Screenshots
 
@@ -10,6 +13,9 @@ This is a simple tool that allows you to see your printer stats in OrcaSlicer as
 ![Settings](.github/setting.png)
 
 ## Installation
+
+> [!NOTE]  
+> This is not nearly as finished so expect bugs
 
 1. Download the latest release from the [release folder](https://github.com/JMcrafter26/flashforge-printer-preview/tree/main/api/release/program)
 1. Windows: Run backend.exe | Other OS: Run backend.py
